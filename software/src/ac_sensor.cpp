@@ -1,4 +1,5 @@
 #include <QsLog.h>
+#include <QList>
 #include "ac_sensor.h"
 #include "ac_sensor_phase.h"
 #include "ac_sensor_bridge.h"
@@ -43,6 +44,8 @@ void AcSensor::setDeviceType(int t)
 	else if (mDeviceType >= 330 && mDeviceType <= 345)
 		setProtocolType(Et340Protocol);
 	else if (mDeviceType >= 1744 && mDeviceType <= 1763)
+		setProtocolType(Em540Protocol);
+	else if ((QList<int>() << 2096 << 1956).contains(mDeviceType)) // EM530 RG and MV models
 		setProtocolType(Em540Protocol);
 	else
 		setProtocolType(Unknown);
