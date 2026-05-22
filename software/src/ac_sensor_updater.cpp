@@ -174,40 +174,41 @@ static const CompositeCommand Em300CommandsP1PV[] = {
 };
 
 static const CompositeCommand Em540Commands[] = {
-	{ 0x0028, 2, 0, { { 0, Power, MultiPhase } } },
-	{ 0x0012, 6, 0, { { 0, Power, PhaseL1 }, { 2, Power, PhaseL2 }, { 4, Power, PhaseL3 } } },
-	{ 0x0024, 4, 1, { { 0, Voltage, MultiPhase } } },
-	{ 0x0000, 8, 2, { { 0, Voltage, PhaseL1 }, { 2, Voltage, PhaseL2 }, { 4, Voltage, PhaseL3 } } },
-	{ 0x000C, 8, 3, { { 0, Current, PhaseL1 }, { 2, Current, PhaseL2 }, { 4, Current, PhaseL3 } } },
-	{ 0x0034, 4, 4, { { 0, PositiveEnergy, MultiPhase } } },
-	{ 0x0040, 8, 5, { { 0, PositiveEnergy, PhaseL1 }, { 2, PositiveEnergy, PhaseL2 }, { 4, PositiveEnergy, PhaseL3 } } },
-	{ 0x004E, 4, 6, { { 0, NegativeEnergy, MultiPhase } } },
-	{ 0x053C, 4, 7, { { 0, Frequency, MultiPhase } } },
-	{ 0x002E, 5, 8, { { 0, PowerFactor, PhaseL1 }, { 1, PowerFactor, PhaseL2 }, { 2, PowerFactor, PhaseL3 }, {3, PowerFactor, MultiPhase } } }
+	{ 0x0024, 15, 0, { {  0, Voltage, MultiPhase },
+	                   {  4, Power, MultiPhase }, // 0x0028
+	                   { 10, PowerFactor, PhaseL1 }, { 11, PowerFactor, PhaseL2 }, { 12, PowerFactor, PhaseL3 }, { 13, PowerFactor, MultiPhase } } }, // 0x002E
+	{ 0x0012,  6, 0, { {  0, Power, PhaseL1 }, { 2, Power, PhaseL2 }, { 4, Power, PhaseL3 } } },
+	{ 0x0000, 18, 1, { {  0, Voltage, PhaseL1 }, {  2, Voltage, PhaseL2 }, {  4, Voltage, PhaseL3 },
+	                   { 12, Current, PhaseL1 }, { 14, Current, PhaseL2 }, { 16, Current, PhaseL3 } } }, // 0x000C
+	{ 0x0034,  4, 2, { {  0, PositiveEnergy, MultiPhase } } },
+	{ 0x0040, 16, 3, { {  0, PositiveEnergy, PhaseL1 }, { 2, PositiveEnergy, PhaseL2 }, { 4, PositiveEnergy, PhaseL3 },
+	                   { 14, NegativeEnergy, MultiPhase } } }, // 0x004E
+	{ 0x053C,  2, 4, { {  0, Frequency, MultiPhase } } }
 };
 
 static const CompositeCommand Em540P1Commands[] = {
-	{ 0x0012, 2, 0, { { 0, Power, MultiPhase } } },
-	{ 0x0000, 3, 1, { { 0, Voltage, MultiPhase } } },
-	{ 0x000C, 3, 2, { { 0, Current, MultiPhase } } },
-	{ 0x0040, 3, 3, { { 0, PositiveEnergy, MultiPhase } } },
-	{ 0x004E, 3, 4, { { 0, NegativeEnergy, MultiPhase } } },
-	{ 0x053C, 4, 5, { { 0, Frequency, MultiPhase } } },
-	{ 0x002E, 3, 6, { { 0, PowerFactor, MultiPhase } } }
+	{ 0x0012,  4, 0, { { 0, Power, MultiPhase } } },
+	{ 0x0000, 14, 1, { {  0, Voltage, MultiPhase },
+	                   { 12, Current, MultiPhase } } }, // 0x000C
+	{ 0x0040, 16, 2, { {  0, PositiveEnergy, MultiPhase },
+	                   { 14, NegativeEnergy, MultiPhase } } }, // 0x004E
+	{ 0x053C,  2, 3, { {  0, Frequency, MultiPhase } } },
+	{ 0x002E,  6, 4, { {  0, PowerFactor, MultiPhase } } }
 };
 
 static const CompositeCommand Em540CommandsP1PV[] = {
-	{ 0x0012, 2, 0, { { 0, Power, PhaseL1 } } },
-	{ 0x0014, 3, 1, { { 0, Power, PhaseL2 } } },
-	{ 0x0000, 4, 2, { { 0, Voltage, PhaseL1 }, { 2, Voltage, PhaseL2 } } },
-	{ 0x000C, 4, 3, { { 0, Current, PhaseL1 }, { 2, Current, PhaseL2 } } },
-	{ 0x0040, 4, 4, { { 0, PositiveEnergy, PhaseL1 }, { 2, PositiveEnergy, PhaseL2 } } },
+	{ 0x0012,  4, 0, { {  0, Power, PhaseL1 },
+	                   {  2, Power, PhaseL2 } } }, // 0x0014
+	{ 0x0000, 16, 1, { {  0, Voltage, PhaseL1 }, {  2, Voltage, PhaseL2 },
+	                   { 12, Current, PhaseL1 }, { 14, Current, PhaseL2 } } }, // 0x000C
+
 	// As with the EM24, there is no individual negative counters for exported
 	// energy. We assume that in a shared system, L1 is a grid meter and L2
 	// is a PV-inverter, so on L2 there is never any imported power, therefore
 	// all negative energy can be assumed to be on L1.
-	{ 0x004E, 4, 5, { { 0, NegativeEnergy, PhaseL1 } } },
-	{ 0x002E, 3, 6, { { 0, PowerFactor, PhaseL1 }, { 1, PowerFactor, PhaseL2 }  } },
+	{ 0x0040, 18, 2, { {  0, PositiveEnergy, PhaseL1 }, { 2, PositiveEnergy, PhaseL2 },
+	                   { 14, NegativeEnergy, PhaseL1 } } }, // 0x004E
+	{ 0x002E,  3, 4, { {  0, PowerFactor, PhaseL1 }, { 1, PowerFactor, PhaseL2 } } },
 };
 
 // Even though this meter is supposedly the same as an EM24, it is still
