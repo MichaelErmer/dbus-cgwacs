@@ -103,11 +103,11 @@ static const CompositeCommand Em24CommandsP1PV[] = {
 };
 
 static const CompositeCommand Em112Commands[] = {
-	{ 0x0004, 2, 0, { { 0, Power, MultiPhase } } },
-	{ 0x0000, 4, 1, { { 0, Voltage, MultiPhase }, { 2, Current, MultiPhase } } },
-	{ 0x0010, 3, 2, { { 0, PositiveEnergy, MultiPhase } } },
-	{ 0x0020, 3, 3, { { 0, NegativeEnergy, MultiPhase } } },
-	{ 0x000F, 3, 4, { { 0, Frequency, MultiPhase } } }
+	{ 0x0004, 4, 0, { { 0, Power, MultiPhase } } },
+	{ 0x0000, 6, 1, { { 0, Voltage, MultiPhase }, { 2, Current, MultiPhase } } },
+	{ 0x000F, 3, 2, { { 0, Frequency, MultiPhase },
+	                  { 1, PositiveEnergy, MultiPhase } } }, // 0x0010
+	{ 0x0020, 2, 3, { { 0, NegativeEnergy, MultiPhase } } }
 };
 
 static const CompositeCommand Et340Commands[] = {
