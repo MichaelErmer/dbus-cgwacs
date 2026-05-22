@@ -56,38 +56,50 @@ struct CompositeCommand {
 
 #define CMDCOUNT(x) sizeof(x) / sizeof(x[0])
 
+// We vary the number of requested registers to avoid problems with Zigbee
+// adapters that sometimes deliver responses out of order. When that happens
+// the values may be interpreted incorrectly, current could be interpreted
+// as energy for example.
+//
+// We don't try to fix everything, but we do try to make sure energy values
+// are correctly handled, and where we have enough numbers to work with,
+// we try to get them all.
+//
+// EM24 doesn't want us to fetch more than 12 registers at a time. The others
+// allow max 20 registers at a time.
+
 static const CompositeCommand Em24Commands[] = {
-	{ 0x0028, 2, 0, { { 0, Power, MultiPhase } } },
-	{ 0x0012, 6, 0, { { 0, Power, PhaseL1 }, { 2, Power, PhaseL2 }, { 4, Power, PhaseL3 } } },
-	{ 0x0024, 2, 1, { { 0, Voltage, MultiPhase } } },
-	{ 0x0000, 6, 2, { { 0, Voltage, PhaseL1 }, { 2, Voltage, PhaseL2 }, { 4, Voltage, PhaseL3 } } },
-	{ 0x000C, 6, 3, { { 0, Current, PhaseL1 }, { 2, Current, PhaseL2 }, { 4, Current, PhaseL3 } } },
-	{ 0x003E, 2, 4, { { 0, PositiveEnergy, MultiPhase } } },
-	{ 0x0046, 6, 5, { { 0, PositiveEnergy, PhaseL1 }, { 2, PositiveEnergy, PhaseL2 }, { 4, PositiveEnergy, PhaseL3 } } },
-	{ 0x005C, 2, 6, { { 0, NegativeEnergy, MultiPhase } } },
-	{ 0x0037, 3, 7, { { 0, Frequency, MultiPhase } } }
+	{ 0x0028,  2, 0, { { 0, Power, MultiPhase } } },
+	{ 0x0012,  6, 0, { { 0, Power, PhaseL1 }, { 2, Power, PhaseL2 }, { 4, Power, PhaseL3 } } },
+	{ 0x0024,  3, 1, { { 0, Voltage, MultiPhase } } },
+	{ 0x0000,  6, 2, { { 0, Voltage, PhaseL1 }, { 2, Voltage, PhaseL2 }, { 4, Voltage, PhaseL3 } } },
+	{ 0x000C,  6, 3, { { 0, Current, PhaseL1 }, { 2, Current, PhaseL2 }, { 4, Current, PhaseL3 } } },
+	{ 0x003E,  4, 4, { { 0, PositiveEnergy, MultiPhase } } }, // padded
+	{ 0x0046,  8, 5, { { 0, PositiveEnergy, PhaseL1 }, { 2, PositiveEnergy, PhaseL2 }, { 4, PositiveEnergy, PhaseL3 } } },
+	{ 0x005C, 10, 6, { { 0, NegativeEnergy, MultiPhase } } },
+	{ 0x0037,  3, 7, { { 0, Frequency, MultiPhase } } }
 };
 
 static const CompositeCommand Em24CommandsP1[] = {
 	{ 0x0028, 2, 0, { { 0, Power, MultiPhase } } },
-	{ 0x0024, 3, 1, { { 0, Voltage, MultiPhase } } },
-	{ 0x000C, 3, 2, { { 0, Current, MultiPhase } } },
-	{ 0x003E, 3, 3, { { 0, PositiveEnergy, MultiPhase } } },
-	{ 0x005C, 3, 4, { { 0, NegativeEnergy, MultiPhase } } },
+	{ 0x0024, 5, 1, { { 0, Voltage, MultiPhase } } },
+	{ 0x000C, 4, 2, { { 0, Current, MultiPhase } } },
+	{ 0x003E, 7, 3, { { 0, PositiveEnergy, MultiPhase } } },
+	{ 0x005C, 6, 4, { { 0, NegativeEnergy, MultiPhase } } },
 	{ 0x0037, 3, 5, { { 0, Frequency, MultiPhase } } }
 };
 
 static const CompositeCommand Em24CommandsP1PV[] = {
-	{ 0x0012, 2, 0, { { 0, Power, PhaseL1 } } },
-	{ 0x0014, 3, 1, { { 0, Power, PhaseL2 } } },
-	{ 0x0000, 4, 2, { { 0, Voltage, PhaseL1 }, { 2, Voltage, PhaseL2 } } },
-	{ 0x000C, 4, 3, { { 0, Current, PhaseL1 }, { 2, Current, PhaseL2 } } },
-	{ 0x0046, 4, 4, { { 0, PositiveEnergy, PhaseL1 }, { 2, PositiveEnergy, PhaseL2 } } },
+	{ 0x0012, 4, 0, { { 0, Power, PhaseL1 },
+	                  { 2, Power, PhaseL2 } } }, // 0x0014
+	{ 0x0000, 5, 1, { { 0, Voltage, PhaseL1 }, { 2, Voltage, PhaseL2 } } },
+	{ 0x000C, 6, 2, { { 0, Current, PhaseL1 }, { 2, Current, PhaseL2 } } },
+	{ 0x0046, 8, 3, { { 0, PositiveEnergy, PhaseL1 }, { 2, PositiveEnergy, PhaseL2 } } },
 	// Note that NegativeEnergy will give us the energy of all phases. Right now
 	// we assume that in case of a shared system L1 is a grid meter and L2 a
 	// PV inverter (which always has ReverseEnergy=0 because power and current
 	// are always positive).
-	{ 0x005C, 3, 5, { { 0, NegativeEnergy, PhaseL1 } } }
+	{ 0x005C, 10, 4, { { 0, NegativeEnergy, PhaseL1 } } }
 };
 
 static const CompositeCommand Em112Commands[] = {
