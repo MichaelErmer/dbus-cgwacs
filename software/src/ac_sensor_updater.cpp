@@ -74,9 +74,9 @@ static const CompositeCommand Em24Commands[] = {
 	{ 0x0024,  3, 1, { { 0, Voltage, MultiPhase } } },
 	{ 0x0000,  6, 2, { { 0, Voltage, PhaseL1 }, { 2, Voltage, PhaseL2 }, { 4, Voltage, PhaseL3 } } },
 	{ 0x000C,  6, 3, { { 0, Current, PhaseL1 }, { 2, Current, PhaseL2 }, { 4, Current, PhaseL3 } } },
-	{ 0x003E,  4, 4, { { 0, PositiveEnergy, MultiPhase } } }, // padded
+	{ 0x003E, 10, 4, { { 0, PositiveEnergy, MultiPhase } } }, // padded
 	{ 0x0046,  8, 5, { { 0, PositiveEnergy, PhaseL1 }, { 2, PositiveEnergy, PhaseL2 }, { 4, PositiveEnergy, PhaseL3 } } },
-	{ 0x005C, 10, 6, { { 0, NegativeEnergy, MultiPhase } } },
+	{ 0x005C,  4, 6, { { 0, NegativeEnergy, MultiPhase } } },
 	{ 0x0037,  3, 7, { { 0, Frequency, MultiPhase } } }
 };
 
@@ -90,16 +90,16 @@ static const CompositeCommand Em24CommandsP1[] = {
 };
 
 static const CompositeCommand Em24CommandsP1PV[] = {
-	{ 0x0012, 4, 0, { { 0, Power, PhaseL1 },
+	{ 0x0012,  6, 0, { { 0, Power, PhaseL1 },
 	                  { 2, Power, PhaseL2 } } }, // 0x0014
-	{ 0x0000, 5, 1, { { 0, Voltage, PhaseL1 }, { 2, Voltage, PhaseL2 } } },
-	{ 0x000C, 6, 2, { { 0, Current, PhaseL1 }, { 2, Current, PhaseL2 } } },
-	{ 0x0046, 8, 3, { { 0, PositiveEnergy, PhaseL1 }, { 2, PositiveEnergy, PhaseL2 } } },
+	{ 0x0000,  5, 1, { { 0, Voltage, PhaseL1 }, { 2, Voltage, PhaseL2 } } },
+	{ 0x000C, 10, 2, { { 0, Current, PhaseL1 }, { 2, Current, PhaseL2 } } },
+	{ 0x0046,  8, 3, { { 0, PositiveEnergy, PhaseL1 }, { 2, PositiveEnergy, PhaseL2 } } },
 	// Note that NegativeEnergy will give us the energy of all phases. Right now
 	// we assume that in case of a shared system L1 is a grid meter and L2 a
 	// PV inverter (which always has ReverseEnergy=0 because power and current
 	// are always positive).
-	{ 0x005C, 10, 4, { { 0, NegativeEnergy, PhaseL1 } } }
+	{ 0x005C,  4, 4, { { 0, NegativeEnergy, PhaseL1 } } }
 };
 
 static const CompositeCommand Em112Commands[] = {
@@ -214,12 +214,12 @@ static const CompositeCommand Em540CommandsP1PV[] = {
 // Even though this meter is supposedly the same as an EM24, it is still
 // too much of an EM300, and single-phase needs a special command-set.
 static const CompositeCommand Em300S27P1Commands[] = {
-	{ 0x0028, 2, 0, { { 0, Power, MultiPhase } } },
-	{ 0x0000, 3, 1, { { 0, Voltage, MultiPhase } } },
-	{ 0x000C, 3, 2, { { 0, Current, MultiPhase } } },
-	{ 0x003E, 3, 3, { { 0, PositiveEnergy, MultiPhase } } },
-	{ 0x005C, 3, 4, { { 0, NegativeEnergy, MultiPhase } } },
-	{ 0x0037, 3, 5, { { 0, Frequency, MultiPhase } } }
+	{ 0x0028,  2, 0, { {  0, Power, MultiPhase } } },
+	{ 0x0000, 14, 1, { {  0, Voltage, MultiPhase },
+	                   { 12, Current, MultiPhase } } }, // 0x000C
+	{ 0x0037,  9, 2, { {  0, Frequency, MultiPhase },
+	                   {  7, PositiveEnergy, MultiPhase } } }, // 0x003E
+	{ 0x005C,  4, 3, { {  0, NegativeEnergy, MultiPhase } } }
 };
 
 
@@ -812,7 +812,7 @@ void AcSensorUpdater::startNextAction()
 				mCommandCount = CMDCOUNT(Em24CommandsP1PV);
 			} else {
 				mCommands = Em300S27P1Commands;
-				mCommandCount = CMDCOUNT(Em24CommandsP1);
+				mCommandCount = CMDCOUNT(Em300S27P1Commands);
 			}
 			break;
 		case AcSensor::Unknown:
