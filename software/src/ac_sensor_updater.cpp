@@ -18,7 +18,7 @@ static const int MeasurementModeB = 1;
 static const int MeasurementModeC = 2;
 
 static const int ApplicationH = 7; // show negative power (EM24)
-static const int MaxRegCount = 5;
+static const int MaxRegCount = 8;
 static const int MaxTimeoutCount = 5;
 static const int MaxErrorCount = 20;
 
@@ -111,34 +111,34 @@ static const CompositeCommand Em112Commands[] = {
 };
 
 static const CompositeCommand Et340Commands[] = {
-	{ 0x0028, 2, 0, { { 0, Power, MultiPhase } } },
-	{ 0x0012, 6, 0, { { 0, Power, PhaseL1 }, { 2, Power, PhaseL2 }, { 4, Power, PhaseL3 } } },
-	{ 0x0024, 4, 1, { { 0, Voltage, MultiPhase } } },
-	{ 0x0000, 8, 2, { { 0, Voltage, PhaseL1 }, { 2, Voltage, PhaseL2 }, { 4, Voltage, PhaseL3 } } },
-	{ 0x000C, 8, 3, { { 0, Current, PhaseL1 }, { 2, Current, PhaseL2 }, { 4, Current, PhaseL3 } } },
-	{ 0x0034, 4, 4, { { 0, PositiveEnergy, MultiPhase } } },
-	{ 0x0040, 8, 5, { { 0, PositiveEnergy, PhaseL1 }, { 2, PositiveEnergy, PhaseL2 }, { 4, PositiveEnergy, PhaseL3 } } },
-	{ 0x004E, 4, 6, { { 0, NegativeEnergy, MultiPhase } } },
-	{ 0x0060, 8, 7, { { 0, NegativeEnergy, PhaseL1 }, { 2, NegativeEnergy, PhaseL2 }, { 4, NegativeEnergy, PhaseL3 } } },
-	{ 0x0033, 3, 8, { { 0, Frequency, MultiPhase } } }
+	{ 0x0024,  6, 0, { {  0, Voltage, MultiPhase },
+	                   {  4, Power, MultiPhase } } }, // 0x0028
+	{ 0x0012, 12, 0, { {  0, Power, PhaseL1 }, { 2, Power, PhaseL2 }, { 4, Power, PhaseL3 } } },
+	{ 0x0000, 18, 1, { {  0, Voltage, PhaseL1 }, {  2, Voltage, PhaseL2 }, {  4, Voltage, PhaseL3 },
+	                   { 12, Current, PhaseL1 }, { 14, Current, PhaseL2 }, { 16, Current, PhaseL3 } } }, // 0x000C
+	{ 0x0033,  3, 2, { {  0, Frequency, MultiPhase },
+	                   {  1, PositiveEnergy, MultiPhase } } }, // 0x0034
+	{ 0x0040, 16, 3, { {  0, PositiveEnergy, PhaseL1 }, { 2, PositiveEnergy, PhaseL2 }, { 4, PositiveEnergy, PhaseL3 },
+	                   { 14, NegativeEnergy, MultiPhase } } },
+	{ 0x0060,  8, 4, { {  0, NegativeEnergy, PhaseL1 }, { 2, NegativeEnergy, PhaseL2 }, { 4, NegativeEnergy, PhaseL3 } } }
 };
 
 static const CompositeCommand Et340P1Commands[] = {
-	{ 0x0012, 2, 0, { { 0, Power, MultiPhase } } },
-	{ 0x0000, 3, 1, { { 0, Voltage, MultiPhase } } },
-	{ 0x000C, 3, 2, { { 0, Current, MultiPhase } } },
-	{ 0x0040, 3, 3, { { 0, PositiveEnergy, MultiPhase } } },
-	{ 0x0060, 3, 4, { { 0, NegativeEnergy, MultiPhase } } },
-	{ 0x0033, 3, 5, { { 0, Frequency, MultiPhase } } }
+	{ 0x0012,  2, 0, { {  0, Power, MultiPhase } } },
+	{ 0x0000, 14, 1, { {  0, Voltage, MultiPhase },
+	                   { 12, Current, MultiPhase } } }, // 0x000C
+	{ 0x0033, 15, 2, { {  0, Frequency, MultiPhase },
+	                   { 13, PositiveEnergy, MultiPhase } } }, // 0x0040
+	{ 0x0060,  4, 3, { {  0, NegativeEnergy, MultiPhase } } }
 };
 
 static const CompositeCommand Et340CommandsP1PV[] = {
-	{ 0x0012, 2, 0, { { 0, Power, PhaseL1 } } },
-	{ 0x0014, 3, 1, { { 0, Power, PhaseL2 } } },
-	{ 0x0000, 4, 2, { { 0, Voltage, PhaseL1 }, { 2, Voltage, PhaseL2 } } },
-	{ 0x000C, 4, 3, { { 0, Current, PhaseL1 }, { 2, Current, PhaseL2 } } },
-	{ 0x0040, 4, 4, { { 0, PositiveEnergy, PhaseL1 }, { 2, PositiveEnergy, PhaseL2 } } },
-	{ 0x0060, 4, 5, { { 0, NegativeEnergy, PhaseL1 }, { 2, NegativeEnergy, PhaseL2 } } }
+	{ 0x0012,  4, 0, { {  0, Power, PhaseL1 },
+	                   {  2, Power, PhaseL2 } } }, // 0x0014
+	{ 0x0000, 16, 1, { {  0, Voltage, PhaseL1 }, {  2, Voltage, PhaseL2 },
+	                   { 12, Current, PhaseL1 }, { 14, Current, PhaseL2 } } }, // 0x000C
+	{ 0x0040,  8, 2, { {  0, PositiveEnergy, PhaseL1 }, { 2, PositiveEnergy, PhaseL2 } } },
+	{ 0x0060,  6, 3, { {  0, NegativeEnergy, PhaseL1 }, { 2, NegativeEnergy, PhaseL2 } } }
 };
 
 static const CompositeCommand Em300Commands[] = {
