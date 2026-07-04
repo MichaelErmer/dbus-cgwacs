@@ -27,6 +27,8 @@ public:
 
 	void setPositiveEnergy(Phase phase, double value);
 
+	void setPositiveEnergy(double sum);
+
 	void setNegativeEnergy(double sum);
 
 	void setNegativeEnergy(Phase phase, double value);
@@ -38,6 +40,10 @@ public:
 	void updateEnergySettings();
 
 private:
+	double getForwardEnergy(Phase phase);
+
+	void setForwardEnergy(Phase phase, double value);
+
 	double getReverseEnergy(Phase phase);
 
 	void setReverseEnergy(Phase phase, double value);
@@ -48,6 +54,7 @@ private:
 
 	AcSensor *mAcSensor;
 	AcSensorSettings *mSettings;
+	double mPositivePower[4];
 	double mNegativePower[4];
 	bool mStoreReverseEnergy;
 };

@@ -921,6 +921,14 @@ void AcSensorUpdater::processAcquisitionData(const QList<quint16> &registers)
 					<< cmd.count << registers.size() << mCommandIndex;
 		return;
 	}
+	// ET340 grid meters have reliable total import/export counters, while the
+	// per-phase energy counters can diverge. Use totals and let DataProcessor
+	// maintain synthetic per-phase counters from the observed phase powers.
+	bool useTotalEnergyAccounting =
+		mAcSensor->protocolType() == AcSensor::Et340Protocol &&
+		mSettings->isMultiPhase() &&
+		!mSettings->piggyEnabled() &&
+		mSettings->serviceType() == "grid";
 	for (int i=0; i < MaxRegCount; ++i) {
 		RegisterCommand ra = cmd.actions[i];
 		if (ra.action == None) // trailing slots are zero-initialised (static const arrays)
@@ -966,6 +974,11 @@ void AcSensorUpdater::processAcquisitionData(const QList<quint16> &registers)
 				break;
 			case PositiveEnergy:
 				v = getDouble(registers, ra.regOffset, 0.1);
+				if (useTotalEnergyAccounting) {
+					if (ra.phase == MultiPhase)
+						dest->setPositiveEnergy(v);
+					break;
+				}
 				dest->setPositiveEnergy(ra.phase, v);
 				if (setPhaseL1)
 					dest->setPositiveEnergy(PhaseL1, v);
@@ -974,6 +987,12 @@ void AcSensorUpdater::processAcquisitionData(const QList<quint16> &registers)
 				// ET112 seems to return negative values for kWh(-), unlike the
 				// other meters.
 				v = qAbs(getDouble(registers, ra.regOffset, 0.1));
+
+				if (useTotalEnergyAccounting) {
+					if (ra.phase == MultiPhase)
+						dest->setNegativeEnergy(v);
+					break;
+				}
 
 				// These meters dont' have per-phase reverse counters
 				if ((mAcSensor->protocolType() == AcSensor::Em24Protocol ||

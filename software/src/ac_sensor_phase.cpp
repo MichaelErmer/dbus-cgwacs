@@ -7,7 +7,9 @@ AcSensorPhase::AcSensorPhase(QObject *parent) :
 	mCurrent(qQNaN()),
 	mVoltage(qQNaN()),
 	mPower(qQNaN()),
-	mEnergyForward(qQNaN())
+	mEnergyForward(qQNaN()),
+	mEnergyReverse(qQNaN()),
+	mPowerFactor(qQNaN())
 {
 }
 
