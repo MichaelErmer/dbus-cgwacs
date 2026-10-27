@@ -1,5 +1,5 @@
 # Application version
-VERSION = 2.0.31
+VERSION = 2.0.31-net1
 
 # suppress the mangling of va_arg has changed for gcc 4.4
 QMAKE_CXXFLAGS += -Wno-psabi
@@ -56,6 +56,7 @@ SOURCES += \
     src/ac_sensor_updater.cpp \
     src/crc16.cpp \
     src/data_processor.cpp \
+    src/grid_net_energy.cpp \
     src/dbus_bridge.cpp \
     src/main.cpp \
     src/modbus_rtu.cpp \
@@ -71,6 +72,8 @@ HEADERS += \
     src/ac_sensor_updater.h \
     src/crc16.h \
     src/data_processor.h \
+    src/grid_net_energy.h \
+    src/net_energy.h \
     src/dbus_bridge.h \
     src/defines.h \
     src/modbus_rtu.h \
@@ -82,4 +85,10 @@ DISTFILES += \
 
 *g++* {
     QMAKE_CXX += -Wno-class-memaccess -Wno-deprecated-copy
+}
+
+contains(CONFIG, net_energy_test) {
+    SOURCES -= src/main.cpp
+    SOURCES += ../test/grid_net_energy_test.cpp
+    TARGET = grid-net-energy-test
 }

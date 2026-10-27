@@ -4,13 +4,15 @@
 #include "ac_sensor_settings.h"
 #include "data_processor.h"
 #include "ac_sensor_phase.h"
+#include "grid_net_energy.h"
 
 DataProcessor::DataProcessor(AcSensor *acSensor,
 							 AcSensorSettings *settings, QObject *parent) :
 	QObject(parent),
 	mAcSensor(acSensor),
 	mSettings(settings),
-	mStoreReverseEnergy(false)
+	mStoreReverseEnergy(false),
+	mNetEnergy(0)
 {
 	Q_ASSERT(acSensor != 0);
 	Q_ASSERT(settings != 0);
@@ -37,6 +39,23 @@ void DataProcessor::setPower(Phase phase, double value)
 		mPositivePower[phase] += value;
 	if (countNegativePower)
 		mNegativePower[phase] -= value;
+}
+
+void DataProcessor::setRawNetEnergy(Phase phase, double value, bool reverse)
+{
+	if (!mNetEnergy) mNetEnergy = new GridNetEnergy(mAcSensor, this);
+	mNetEnergy->rawEnergy(phase, value, reverse);
+}
+
+void DataProcessor::updateNetPower()
+{
+	if (!mNetEnergy) mNetEnergy = new GridNetEnergy(mAcSensor, this);
+	mNetEnergy->sample();
+}
+
+void DataProcessor::invalidateNetPower()
+{
+	if (mNetEnergy) mNetEnergy->invalidate();
 }
 
 void DataProcessor::setVoltage(Phase phase, double value)

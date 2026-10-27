@@ -7,6 +7,7 @@
 #include "data_processor.h"
 #include "modbus_rtu.h"
 #include "ac_sensor_phase.h"
+#include "grid_net_energy.h"
 
 static const int MeasurementSystemP1 = 3; // single phase (1P)
 static const int MeasurementSystemP2 = 2; // 2 phase (2P)
@@ -315,6 +316,7 @@ void AcSensorUpdater::onErrorReceived(int errorType, quint8 addr, int exception)
 {
 	if (addr != mAcSensor->slaveAddress())
 		return;
+	if (mDataProcessor) mDataProcessor->invalidateNetPower();
 
 	/* An error on fetching the per-phase registers for an EM-300 is "normal"
 	   for some meters. Switch protocol and continue with next stage. */
@@ -929,6 +931,8 @@ void AcSensorUpdater::processAcquisitionData(const QList<quint16> &registers)
 		mSettings->isMultiPhase() &&
 		!mSettings->piggyEnabled() &&
 		mSettings->serviceType() == "grid";
+	bool netMode = GridNetEnergy::enabledFor(mAcSensor, mSettings);
+	bool completePhasePower = false;
 	for (int i=0; i < MaxRegCount; ++i) {
 		RegisterCommand ra = cmd.actions[i];
 		if (ra.action == None) // trailing slots are zero-initialised (static const arrays)
@@ -946,6 +950,7 @@ void AcSensorUpdater::processAcquisitionData(const QList<quint16> &registers)
 			case Power:
 				v = getDouble(registers, ra.regOffset, 0.1);
 				dest->setPower(ra.phase, v);
+				if (ra.phase == PhaseL3) completePhasePower = true;
 				if (setPhaseL1)
 					dest->setPower(PhaseL1, v);
 				break;
@@ -974,6 +979,10 @@ void AcSensorUpdater::processAcquisitionData(const QList<quint16> &registers)
 				break;
 			case PositiveEnergy:
 				v = getDouble(registers, ra.regOffset, 0.1);
+				if (netMode) {
+					mDataProcessor->setRawNetEnergy(ra.phase, v, false);
+					break;
+				}
 				if (useTotalEnergyAccounting) {
 					if (ra.phase == MultiPhase)
 						dest->setPositiveEnergy(v);
@@ -987,6 +996,10 @@ void AcSensorUpdater::processAcquisitionData(const QList<quint16> &registers)
 				// ET112 seems to return negative values for kWh(-), unlike the
 				// other meters.
 				v = qAbs(getDouble(registers, ra.regOffset, 0.1));
+				if (netMode) {
+					mDataProcessor->setRawNetEnergy(ra.phase, v, true);
+					break;
+				}
 
 				if (useTotalEnergyAccounting) {
 					if (ra.phase == MultiPhase)
@@ -1027,6 +1040,7 @@ void AcSensorUpdater::processAcquisitionData(const QList<quint16> &registers)
 			}
 		}
 	}
+	if (netMode && completePhasePower) mDataProcessor->updateNetPower();
 }
 
 double AcSensorUpdater::getDouble(const QList<quint16> &registers,

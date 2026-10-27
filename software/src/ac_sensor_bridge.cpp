@@ -7,6 +7,7 @@
 #include "ac_sensor_bridge.h"
 #include "ac_sensor_settings.h"
 #include "ac_sensor_phase.h"
+#include "grid_net_energy.h"
 
 static bool roleFromDBus(DBusBridge*, QVariant &v)
 {
@@ -49,6 +50,15 @@ AcSensorBridge::AcSensorBridge(AcSensor *acSensor, AcSensorSettings *settings,
 	producePowerInfo(acSensor->l1(), "/Ac/L1", isGridmeter);
 	producePowerInfo(acSensor->l2(), "/Ac/L2", isGridmeter);
 	producePowerInfo(acSensor->l3(), "/Ac/L3", isGridmeter);
+	if (GridNetEnergy::enabledFor(acSensor, settings)) {
+		produce(acSensor, "rawEnergyForward", "/Ac/Energy/ForwardRaw", "kWh", 3);
+		produce(acSensor, "rawEnergyReverse", "/Ac/Energy/ReverseRaw", "kWh", 3);
+		produce(acSensor, "netEnergyActive", "/Energy/Netting/Active");
+		produce(acSensor, "netEnergyStartedAt", "/Energy/Netting/StartedAt");
+		produce(acSensor, "netEnergySkippedSeconds", "/Energy/Netting/SkippedSeconds", "s", 1);
+		produce(acSensor, "netEnergyPersistenceOk", "/Energy/Netting/PersistenceOk");
+		produce(acSensor, "netEnergyLastSave", "/Energy/Netting/LastSave");
+	}
 
 	// For EV-charger, also publish L1 current on /Current. This is the
 	// actual charge current the car is consuming from each phase.

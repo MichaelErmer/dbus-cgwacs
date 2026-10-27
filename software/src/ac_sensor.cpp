@@ -153,6 +153,31 @@ void AcSensor::resetValues()
 	mL1->resetValues();
 	mL2->resetValues();
 	mL3->resetValues();
+	mNetEnergyActive = false;
+	mRawEnergyForward = mRawEnergyReverse = qQNaN();
+	emit netEnergyActiveChanged();
+	emit rawEnergyForwardChanged();
+	emit rawEnergyReverseChanged();
+}
+
+void AcSensor::setRawEnergy(double value, bool reverse)
+{
+	(reverse ? mRawEnergyReverse : mRawEnergyForward) = value;
+	if (reverse) emit rawEnergyReverseChanged();
+	else emit rawEnergyForwardChanged();
+}
+
+void AcSensor::setNetEnergyStatus(bool active, double started, double skipped)
+{
+	if (mNetEnergyActive != active) { mNetEnergyActive = active; emit netEnergyActiveChanged(); }
+	if (mNetEnergyStartedAt != started) { mNetEnergyStartedAt = started; emit netEnergyStartedAtChanged(); }
+	if (mNetEnergySkippedSeconds != skipped) { mNetEnergySkippedSeconds = skipped; emit netEnergySkippedSecondsChanged(); }
+}
+
+void AcSensor::setNetEnergyPersistence(bool ok, double saved)
+{
+	if (mNetEnergyPersistenceOk != ok) { mNetEnergyPersistenceOk = ok; emit netEnergyPersistenceOkChanged(); }
+	if (mNetEnergyLastSave != saved) { mNetEnergyLastSave = saved; emit netEnergyLastSaveChanged(); }
 }
 
 void AcSensor::flushValues()

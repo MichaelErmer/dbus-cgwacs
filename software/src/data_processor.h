@@ -6,6 +6,7 @@
 
 class AcSensor;
 class AcSensorSettings;
+class GridNetEnergy;
 
 /*!
  * Processes energy meter data from an and stores it in an `AcSensor` object.
@@ -38,6 +39,9 @@ public:
 	void setPowerFactor(Phase phase, double f);
 
 	void updateEnergySettings();
+	void setRawNetEnergy(Phase phase, double value, bool reverse);
+	void updateNetPower();
+	void invalidateNetPower();
 
 private:
 	double getForwardEnergy(Phase phase);
@@ -57,6 +61,7 @@ private:
 	double mPositivePower[4];
 	double mNegativePower[4];
 	bool mStoreReverseEnergy;
+	GridNetEnergy *mNetEnergy;
 };
 
 #endif // DATA_PROCESSOR_H

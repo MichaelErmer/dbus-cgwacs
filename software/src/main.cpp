@@ -5,12 +5,16 @@
 #include <QEventLoop>
 #include <QTimer>
 #include <unistd.h>
+#include <csignal>
 #include <veutil/qt/ve_qitem.hpp>
 #include <veutil/qt/ve_qitems_dbus.hpp>
 #include <veutil/qt/ve_qitem_exported_dbus_services.hpp>
 #include "dbus_bridge.h"
 #include "ac_sensor.h"
 #include "ac_sensor_mediator.h"
+
+static volatile std::sig_atomic_t stopping = 0;
+static void stopSignal(int) { stopping = 1; }
 
 bool initDBus(QDBusConnection &dbus)
 {
@@ -64,6 +68,11 @@ void pltExit(int ret)
 int main(int argc, char *argv[])
 {
 	QCoreApplication app(argc, argv);
+	std::signal(SIGTERM, stopSignal);
+	std::signal(SIGINT, stopSignal);
+	QTimer signalTimer;
+	QObject::connect(&signalTimer, &QTimer::timeout, &app, [&app]() { if (stopping) app.quit(); });
+	signalTimer.start(100);
 	app.setApplicationVersion(VERSION);
 	app.setApplicationName(app.arguments()[0]);
 

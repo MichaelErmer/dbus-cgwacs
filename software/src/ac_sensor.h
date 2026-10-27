@@ -31,6 +31,13 @@ class AcSensor : public QObject
 	Q_PROPERTY(double frequency READ frequency WRITE setFrequency NOTIFY frequencyChanged)
 	Q_PROPERTY(int errorCode READ errorCode WRITE setErrorCode NOTIFY errorCodeChanged)
 	Q_PROPERTY(QString portName READ portName)
+	Q_PROPERTY(double rawEnergyForward READ rawEnergyForward NOTIFY rawEnergyForwardChanged)
+	Q_PROPERTY(double rawEnergyReverse READ rawEnergyReverse NOTIFY rawEnergyReverseChanged)
+	Q_PROPERTY(bool netEnergyActive READ netEnergyActive NOTIFY netEnergyActiveChanged)
+	Q_PROPERTY(double netEnergyStartedAt READ netEnergyStartedAt NOTIFY netEnergyStartedAtChanged)
+	Q_PROPERTY(double netEnergySkippedSeconds READ netEnergySkippedSeconds NOTIFY netEnergySkippedSecondsChanged)
+	Q_PROPERTY(bool netEnergyPersistenceOk READ netEnergyPersistenceOk NOTIFY netEnergyPersistenceOkChanged)
+	Q_PROPERTY(double netEnergyLastSave READ netEnergyLastSave NOTIFY netEnergyLastSaveChanged)
 public:
 	AcSensor(const QString &portName, int slaveAddress, QObject *parent = 0);
 
@@ -185,6 +192,16 @@ public:
 	 * we know about the meter.
 	 */
 	int refreshTime();
+	double rawEnergyForward() const { return mRawEnergyForward; }
+	double rawEnergyReverse() const { return mRawEnergyReverse; }
+	bool netEnergyActive() const { return mNetEnergyActive; }
+	double netEnergyStartedAt() const { return mNetEnergyStartedAt; }
+	double netEnergySkippedSeconds() const { return mNetEnergySkippedSeconds; }
+	bool netEnergyPersistenceOk() const { return mNetEnergyPersistenceOk; }
+	double netEnergyLastSave() const { return mNetEnergyLastSave; }
+	void setRawEnergy(double value, bool reverse);
+	void setNetEnergyStatus(bool active, double started, double skipped);
+	void setNetEnergyPersistence(bool ok, double saved);
 
 signals:
 	void connectionStateChanged();
@@ -200,6 +217,13 @@ signals:
 	void errorCodeChanged();
 
 	void frequencyChanged();
+	void rawEnergyForwardChanged();
+	void rawEnergyReverseChanged();
+	void netEnergyActiveChanged();
+	void netEnergyStartedAtChanged();
+	void netEnergySkippedSecondsChanged();
+	void netEnergyPersistenceOkChanged();
+	void netEnergyLastSaveChanged();
 
 private:
 	ConnectionState mConnectionState;
@@ -213,6 +237,9 @@ private:
 	QString mRole;
 	int mPhaseSequence;
 	double mFrequency;
+	double mRawEnergyForward = qQNaN(), mRawEnergyReverse = qQNaN();
+	bool mNetEnergyActive = false, mNetEnergyPersistenceOk = false;
+	double mNetEnergyStartedAt = 0, mNetEnergySkippedSeconds = 0, mNetEnergyLastSave = 0;
 	AcSensorPhase *mTotal;
 	AcSensorPhase *mL1;
 	AcSensorPhase *mL2;
